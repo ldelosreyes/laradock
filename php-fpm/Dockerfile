@@ -343,7 +343,7 @@ RUN if [ ${INSTALL_XHPROF} = true ]; then \
     # Install the php xhprof extension
     if [ $(php -r "echo PHP_MAJOR_VERSION;") = 7 ]; then \
       curl -L -o /tmp/xhprof.tar.gz "https://github.com/tideways/php-xhprof-extension/archive/v5.0.1.tar.gz"; \
-    else \ 
+    else \
       curl -L -o /tmp/xhprof.tar.gz "https://codeload.github.com/phacility/xhprof/tar.gz/master"; \
     fi \
     && mkdir -p xhprof \
@@ -913,7 +913,7 @@ RUN if [ ${INSTALL_WKHTMLTOPDF} = true ]; then \
     libx11-dev \
     libjpeg62 \
     libxtst6 \
-    fontconfig \ 
+    fontconfig \
     libjpeg62-turbo \
     xfonts-base \
     xfonts-75dpi \
@@ -995,6 +995,18 @@ RUN if [ ${DOWNGRADE_OPENSSL_TLS_AND_SECLEVEL} = true ]; then \
 ;fi
 
 ###########################################################################
+# libreoffice:
+###########################################################################
+
+USER root
+
+RUN apt-get remove libreoffice && \
+		apt-get remove --purge libreoffice && \
+		apt-get update && \
+		apt-get install -y libreoffice --no-install-recommends && \
+		apt-get install -y libreoffice-java-common
+
+###########################################################################
 # Check PHP version:
 ###########################################################################
 
@@ -1024,6 +1036,11 @@ ENV PGID ${PGID}
 
 RUN groupmod -o -g ${PGID} www-data && \
     usermod -o -u ${PUID} -g www-data www-data
+
+RUN groupadd -g 1002 pdf-writers && \
+		addgroup root pdf-writers && \
+		newgrp pdf-writers && \
+		usermod -a -G pdf-writers www-data
 
 # Adding the faketime library to the preload file needs to be done last
 # otherwise it will preload it for all commands that follow in this file
